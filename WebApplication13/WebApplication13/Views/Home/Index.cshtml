@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<!DOCTYPE html>
+<html>
+<body>
+    <audio controls autoplay></audio>
+
+    <fieldset>
+    
+        <input onclick="startRecording()" type="button" value="start recording" />
+        <input onclick="stopRecording()" type="button" value="stop recording and play" />
+    </fieldset>
+    <script>
+        var recordedChunks = [];
+
+        var recorder = null;
+        function gotMedia(stream) {
+            try {
+                recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            } catch (e) {
+                console.error('Exception while creating MediaRecorder: ' + e);
+                return;
+            }
+
+            recorder.start();
+        }
+        function stopRecording() {  
+                var msgc = confirm("Are you sure you want to stop?");
+            if (msgc) {
+             //   var blob = new Blob(recorder.data, { 'type': 'audio/ogg; codecs=opus' });
+                var xhr = new XMLHttpRequest();
+                    var fd = new FormData();
+                fd.append("postedFile", recorder.getBlob);
+                    xhr.open("POST", "Action", true);
+                    xhr.send(fd);
+                    recorder.stop();
+                    }
+        }
+
+        function startRecording() {
+            if (recorder != null) recorder.play();
+            else {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(gotMedia)
+                    .catch(e => { console.error('getUserMedia() failed: ' + e); });
+            }
+        }
+    </script>
+</body>
+</html>

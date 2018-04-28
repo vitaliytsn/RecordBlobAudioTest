@@ -1,0 +1,74 @@
+﻿@model IEnumerable<WebApplication13.Models.BlobViewModel>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="container">
+    @Html.ActionLink("Upload to Azure Blob", "UploadBlob", new { controller = "Blob" }, new { @class = "btn btn-link" })
+
+    <div class="table table-striped table-responsive ">
+        <table id="tablex">
+            <thead>
+                <tr>
+                    <th>Container</th>
+                    <th>Actual Filename</th>
+                    <th>URI</th>
+                <tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr id="row_@item.PrimaryUri">
+                            <td>@item.ContainerName</td>
+                            <td>@item.ActualFileName</td>
+
+                            <td>
+                                <a href=@item.PrimaryUri>@item.PrimaryUri</a>
+                            </td>
+                            <td>
+                                @Html.ActionLink("Download", "DownloadBlob", new { controller = "Blob", file = @item.FileNameWithOutExt, fileExtension = @item.fileExtention })
+                            </td>
+
+                            <td>
+                                <input type="submit" href="#" class="btn btn-link" id="btndel" value="Remove" data-id="@item.ActualFileName" />
+                            </td>
+                        </tr>
+
+
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function() {
+                $('table tbody tr td input[type="submit"]').click(function() {
+                    var filename = $(this).attr("data-id");
+                    var ext = filename.split('.').pop();
+                    var file = filename.substr(0, filename.lastIndexOf('.'));
+                    var tr = $(this).closest('tr');
+
+                    var msgc = confirm("Are you sure you want to delete Blob?");
+                    if (msgc) {
+                        $.ajax({
+                            type: "post",
+                            url: '@Url.Action("RemoveBlob", "Blob")',
+                            data: { file: file, extension: ext },
+                            success: function(response) {
+                                if (response == true) {
+                                    tr.remove();
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+    </script>
+}
+
